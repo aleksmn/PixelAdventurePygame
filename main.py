@@ -39,8 +39,8 @@ class Player(pg.sprite.Sprite):
 
 
     def move(self, dx, dy):
-        self.rect.x = dx
-        self.rect.y = dy
+        self.rect.x += dx
+        self.rect.y += dy
 
     def move_left(self, vel):
         self.x_vel = -vel
@@ -54,11 +54,26 @@ class Player(pg.sprite.Sprite):
             self.direction = "right"
             self.animation_count = 0
 
-    def loop(self, fps):
+    def handle_move(self):
+
+        self.x_vel = 0
+        
+        keys = pg.key.get_pressed()
+        if keys[pg.K_LEFT]:
+            self.move_left(PLAYER_VELOCITY)
+
+        if keys[pg.K_RIGHT]:
+            self.move_right(PLAYER_VELOCITY)
+
+
+    def update(self):
+        self.handle_move()
         self.move(self.x_vel, self.y_vel)
 
     def draw(self, screen):
         pg.draw.rect(screen, "red", self.rect)
+
+
 
 
 
@@ -83,7 +98,7 @@ class Game:
 
 
     def update(self):
-        ...
+        self.player.update()
 
 
     def draw(self):
