@@ -28,17 +28,50 @@ def get_background(name):
 
 
 
+class Player(pg.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        self.rect = pg.Rect(x, y, width, height)
+        self.x_vel = 0
+        self.y_vel = 0
+        self.mask = None
+        self.direction = "left"
+        self.animation_count = 0
+
+
+    def move(self, dx, dy):
+        self.rect.x = dx
+        self.rect.y = dy
+
+    def move_left(self, vel):
+        self.x_vel = -vel
+        if self.direction != "left":
+            self.direction = "left"
+            self.animation_count = 0
+        
+    def move_right(self, vel):
+        self.x_vel = vel
+        if self.direction != "right":
+            self.direction = "right"
+            self.animation_count = 0
+
+    def loop(self, fps):
+        self.move(self.x_vel, self.y_vel)
+
+    def draw(self, screen):
+        pg.draw.rect(screen, "red", self.rect)
+
+
+
 class Game:
 
     def __init__(self):        
         self.screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pg.display.set_caption("Pixel Adventure")
-        
+        pg.display.set_caption("Pixel Adventure")        
         self.clock = pg.time.Clock()
-
 
         self.background, self.bg_image = get_background("Green.png")
 
+        self.player = Player(100, 100, 50, 50)
 
         self.run()
 
@@ -50,12 +83,14 @@ class Game:
 
 
     def update(self):
-        pass
+        ...
 
 
     def draw(self):
         for tile in self.background:
             self.screen.blit(self.bg_image, tile)
+
+        self.player.draw(self.screen)
 
 
     def run(self):
