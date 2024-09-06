@@ -3,11 +3,10 @@ import random
 import math
 import pygame as pg
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile
 
 pg.init()
 
-BG_COLOR = (255, 255, 255)
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
 FPS = 60
@@ -15,14 +14,18 @@ PLAYER_VELOCITY = 5
 
 
 def get_background(name):
-    image = pg.image.load(join("assets", "Background", name))
+    image = pg.image.load("assets/Background/" + name)
     x, y, width, height = image.get_rect()
 
     tiles = []
 
     for i in range(SCREEN_WIDTH // width + 1):
         for j in range(SCREEN_HEIGHT // height + 1):
-            pos = [i * width, j * height]
+            pos = (i * width, j * height)
+            tiles.append(pos)
+
+    return tiles, image
+
 
 
 class Game:
@@ -34,7 +37,7 @@ class Game:
         self.clock = pg.time.Clock()
 
 
-        get_background("Blue.png")
+        self.background, self.bg_image = get_background("Green.png")
 
 
         self.run()
@@ -51,7 +54,8 @@ class Game:
 
 
     def draw(self):
-        pass
+        for tile in self.background:
+            self.screen.blit(self.bg_image, tile)
 
 
     def run(self):
