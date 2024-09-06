@@ -3,11 +3,11 @@ import random
 import math
 import pygame as pg
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile
 
 pg.init()
 
-BG_COLOR = (255, 255, 255)
+
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
 FPS = 60
