@@ -14,6 +14,16 @@ FPS = 60
 PLAYER_VELOCITY = 5
 
 
+def get_background(name):
+    image = pg.image.load(join("assets", "Background", name))
+    x, y, width, height = image.get_rect()
+
+    tiles = []
+
+    for i in range(SCREEN_WIDTH // width + 1):
+        for j in range(SCREEN_HEIGHT // height + 1):
+            pos = [i * width, j * height]
+
 
 class Game:
 
@@ -22,7 +32,10 @@ class Game:
         pg.display.set_caption("Pixel Adventure")
         
         self.clock = pg.time.Clock()
-        
+
+
+        get_background("Blue.png")
+
 
         self.run()
 
