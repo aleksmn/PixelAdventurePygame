@@ -11,7 +11,7 @@ SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
 FPS = 60
 PLAYER_VELOCITY = 5
-
+GRAVITY = 1
 
 def get_background(name):
     image = pg.image.load("assets/Background/" + name)
@@ -36,6 +36,7 @@ class Player(pg.sprite.Sprite):
         self.mask = None
         self.direction = "left"
         self.animation_count = 0
+        self.fall_count = 0
 
 
     def move(self, dx, dy):
@@ -69,6 +70,12 @@ class Player(pg.sprite.Sprite):
     def update(self):
         self.handle_move()
         self.move(self.x_vel, self.y_vel)
+
+        self.y_vel += 1 + self.fall_count / FPS * GRAVITY
+        self.fall_count += 1
+
+
+
 
     def draw(self, screen):
         pg.draw.rect(screen, "red", self.rect)
