@@ -70,6 +70,7 @@ class Player(pg.sprite.Sprite):
         self.direction = "left"
         self.animation_count = 0
         self.fall_count = 0
+        self.animation_delay = 3
 
         self.all_sprites = load_sprite_sheets("MainCharacters", "NinjaFrog", 32, 32, True)
 
@@ -102,6 +103,17 @@ class Player(pg.sprite.Sprite):
             self.move_right(PLAYER_VELOCITY)
 
 
+    def handle_animation(self):
+        sprite_sheet = "idle"
+        if self.x_vel != 0:
+            sprite_sheet = "run"
+
+        sprite_sheet_name = sprite_sheet + "_" + self.direction
+        sprites = self.all_sprites[sprite_sheet_name]
+        sprite_index = (self.animation_count // self.animation_delay) % len(sprites)        
+        self.sprite = sprites[sprite_index]
+        self.animation_count += 1
+
     def update(self):
         self.handle_move()
         self.move(self.x_vel, self.y_vel)
@@ -109,12 +121,14 @@ class Player(pg.sprite.Sprite):
         self.y_vel += GRAVITY + (self.fall_count / FPS * GRAVITY)
         self.fall_count += 1
 
+        self.handle_animation()
+        self.update_mask()
 
-
+    def update_mask(self):
+        self.rect = self.sprite.get_rect(topleft=(self.rect.x, self.rect.y))
+        self.mask = pg.mask.from_surface(self.sprite)
 
     def draw(self, screen):
-        # pg.draw.rect(screen, "red", self.rect)
-        self.sprite = self.all_sprites["idle_" + self.direction][0]
         screen.blit(self.sprite, (self.rect.x, self.rect.y))
 
 
