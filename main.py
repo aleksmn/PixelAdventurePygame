@@ -71,7 +71,7 @@ class Player(pg.sprite.Sprite):
         self.handle_move()
         self.move(self.x_vel, self.y_vel)
 
-        self.y_vel += 1 + self.fall_count / FPS * GRAVITY
+        self.y_vel += GRAVITY + (self.fall_count / FPS * GRAVITY)
         self.fall_count += 1
 
 
