@@ -11,7 +11,7 @@ SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
 FPS = 60
 PLAYER_VELOCITY = 5
-GRAVITY = 0
+GRAVITY = 1
 
 def flip(sprites):
     return [pg.transform.flip(image, True, False) for image in sprites]
@@ -83,6 +83,7 @@ class Player(pg.sprite.Sprite):
         self.all_sprites = load_sprite_sheets("MainCharacters", "NinjaFrog", 32, 32, True)
 
 
+
     def move(self, dx, dy):
         self.rect.x += dx
         self.rect.y += dy
@@ -99,7 +100,7 @@ class Player(pg.sprite.Sprite):
             self.direction = "right"
             self.animation_count = 0
 
-    def handle_move(self):
+    def handle_move(self, objects):
 
         self.x_vel = 0
         
@@ -109,6 +110,8 @@ class Player(pg.sprite.Sprite):
 
         if keys[pg.K_RIGHT]:
             self.move_right(PLAYER_VELOCITY)
+
+        self.handle_vertical_collision(objects)
 
 
     def handle_animation(self):
@@ -122,8 +125,37 @@ class Player(pg.sprite.Sprite):
         self.sprite = sprites[sprite_index]
         self.animation_count += 1
 
-    def update(self):
-        self.handle_move()
+
+    def handle_vertical_collision(self, objects):
+        collided_objects = []
+        for obj in objects:
+            if pg.sprite.collide_mask(self, obj):
+                if self.y_vel > 0:
+                    self.rect.bottom = obj.rect.top
+                    self.landed()
+                elif self.y_vel < 0:
+                    self.rect.top = obj.rect.bottom
+                    self.hit_head()
+
+                collided_objects.append(obj)
+   
+        return collided_objects
+
+
+    def landed(self):
+        self.fall_count = 0
+        self.y_vel = 0
+        self.jump_count = 0
+
+
+    def hit_head(self):
+        self.count = 0
+        self.y_vel *= -1
+
+
+    def update(self, objects):
+
+
         self.move(self.x_vel, self.y_vel)
 
         self.y_vel += GRAVITY + (self.fall_count / FPS * GRAVITY)
@@ -131,6 +163,8 @@ class Player(pg.sprite.Sprite):
 
         self.handle_animation()
         self.update_mask()
+        self.handle_move(objects)
+        
 
     def update_mask(self):
         self.rect = self.sprite.get_rect(topleft=(self.rect.x, self.rect.y))
@@ -191,7 +225,7 @@ class Game:
 
 
     def update(self):
-        self.player.update()
+        self.player.update(objects=self.floor)
 
 
     def draw(self):
