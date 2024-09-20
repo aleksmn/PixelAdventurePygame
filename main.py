@@ -44,8 +44,6 @@ def load_sprite_sheets(dir1, dir2, width, height, direction=False):
     return all_sprites
 
 
-
-
 def get_background(name):
     image = pg.image.load("assets/Background/" + name)
     x, y, width, height = image.get_rect()
@@ -60,9 +58,19 @@ def get_background(name):
     return tiles, image
 
 
+def get_block(size):
+    path = join("assets", "Terrain", "Terrain.png")
+    image = pg.image.load(path).convert_alpha()
+    surface = pg.Surface((size, size), pg.SRCALPHA, 32)
+    rect = pg.Rect(96, 0, size, size)
+    surface.blit(image, (0, 0), rect)
+    return pg.transform.scale2x(surface)
+
+
 
 class Player(pg.sprite.Sprite):
     def __init__(self, x, y, width, height):
+        super().__init__()
         self.rect = pg.Rect(x, y, width, height)
         self.x_vel = 0
         self.y_vel = 0
@@ -132,6 +140,27 @@ class Player(pg.sprite.Sprite):
         screen.blit(self.sprite, (self.rect.x, self.rect.y))
 
 
+class Object(pg.sprite.Sprite):
+    def __init__(self, x, y, width, height, name=None):
+        super().__init__()
+        self.rect = pg.Rect(x, y, width, height)
+        self.image = pg.Surface((width, height), pg.SRCALPHA)
+        self.width = width
+        self.height = height
+        self.name = name
+
+
+    def draw(self, screen):
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+
+
+
+class Block(Object):
+    def __init__(self, x, y, size):
+        super().__init__(x, y, size, size)
+        block = get_block(size)
+        self.image.blit(block, (0, 0))
+        self.mask = pg.mask.from_surface(self.image)
 
 
 
@@ -145,6 +174,12 @@ class Game:
         self.background, self.bg_image = get_background("Green.png")
 
         self.player = Player(100, 100, 50, 50)
+
+        block_size = 96
+
+        # self.blocks = [Block(0, SCREEN_HEIGHT - block_size, block_size)]
+        self.floor = [Block(i * block_size, SCREEN_HEIGHT - block_size, block_size) 
+                      for i in range(-SCREEN_WIDTH // block_size, SCREEN_WIDTH * 2 // block_size)]
 
         self.run()
 
@@ -162,6 +197,9 @@ class Game:
     def draw(self):
         for tile in self.background:
             self.screen.blit(self.bg_image, tile)
+
+        for obj in self.floor:
+            obj.draw(self.screen)
 
         self.player.draw(self.screen)
 
