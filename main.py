@@ -75,13 +75,21 @@ class Player(pg.sprite.Sprite):
         self.x_vel = 0
         self.y_vel = 0
         self.mask = None
-        self.direction = "left"
+        self.direction = "right"
         self.animation_count = 0
         self.fall_count = 0
+        self.jump_count = 0
         self.animation_delay = 3
 
         self.all_sprites = load_sprite_sheets("MainCharacters", "NinjaFrog", 32, 32, True)
 
+
+    def jump(self):
+        self.y_vel = -GRAVITY * 20
+        self.animation_count = 0
+        self.jump_count += 1
+        if self.jump_count == 1:
+            self.fall_count = 0
 
 
     def move(self, dx, dy):
@@ -115,9 +123,22 @@ class Player(pg.sprite.Sprite):
 
 
     def handle_animation(self):
+
         sprite_sheet = "idle"
-        if self.x_vel != 0:
+
+        if self.y_vel < 0:
+            if self.jump_count == 1:
+                sprite_sheet = "jump"
+            elif self.jump_count == 2:
+                sprite_sheet = "double_jump"
+
+        elif self.y_vel > GRAVITY * 3:
+            sprite_sheet = "fall"
+
+        elif self.x_vel != 0:
             sprite_sheet = "run"
+
+        # print(sprite_sheet)
 
         sprite_sheet_name = sprite_sheet + "_" + self.direction
         sprites = self.all_sprites[sprite_sheet_name]
@@ -154,7 +175,6 @@ class Player(pg.sprite.Sprite):
 
 
     def update(self, objects):
-
 
         self.move(self.x_vel, self.y_vel)
 
@@ -222,6 +242,10 @@ class Game:
             if event.type == pg.QUIT:
                 pg.quit()
                 quit()
+
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE and self.player.jump_count < 2:
+                    self.player.jump()
 
 
     def update(self):
