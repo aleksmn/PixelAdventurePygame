@@ -135,7 +135,7 @@ class Player(pg.sprite.Sprite):
         elif self.y_vel > GRAVITY * 3:
             sprite_sheet = "fall"
 
-        elif self.x_vel != 0:
+        if self.x_vel != 0:
             sprite_sheet = "run"
 
         # print(sprite_sheet)
