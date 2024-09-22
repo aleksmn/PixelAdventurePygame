@@ -235,9 +235,15 @@ class Game:
 
         block_size = 96
 
-        # self.blocks = [Block(0, SCREEN_HEIGHT - block_size, block_size)]
-        self.floor = [Block(i * block_size, SCREEN_HEIGHT - block_size, block_size) 
+
+        floor = [Block(i * block_size, SCREEN_HEIGHT - block_size, block_size) 
                       for i in range(-SCREEN_WIDTH // block_size, SCREEN_WIDTH * 2 // block_size)]
+        
+        platforms = [Block(0, SCREEN_HEIGHT - block_size * 2, block_size), 
+                     Block(block_size * 3, SCREEN_HEIGHT - block_size * 3, block_size),
+                     Block(block_size * 5, SCREEN_HEIGHT - block_size * 5, block_size),]
+        
+        self.objects = [*floor, *platforms]
 
         self.run()
 
@@ -253,7 +259,7 @@ class Game:
 
 
     def update(self):
-        self.player.update(objects=self.floor)
+        self.player.update(objects=self.objects)
 
         # background scrolling
         if ((self.player.rect.right - self.offset_x >= SCREEN_WIDTH - self.scroll_area_width) and self.player.x_vel > 0) \
@@ -268,7 +274,7 @@ class Game:
         for tile in self.background:
             self.screen.blit(self.bg_image, tile)
 
-        for obj in self.floor:
+        for obj in self.objects:
             obj.draw(self.screen, self.offset_x)
 
         self.player.draw(self.screen, self.offset_x)
