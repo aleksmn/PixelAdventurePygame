@@ -132,10 +132,10 @@ class Player(pg.sprite.Sprite):
             elif self.jump_count == 2:
                 sprite_sheet = "double_jump"
 
-        elif self.y_vel > GRAVITY * 3:
+        if self.y_vel > GRAVITY * 3:
             sprite_sheet = "fall"
 
-        elif self.x_vel != 0:
+        if self.x_vel != 0:
             sprite_sheet = "run"
 
         # print(sprite_sheet)
@@ -190,8 +190,8 @@ class Player(pg.sprite.Sprite):
         self.rect = self.sprite.get_rect(topleft=(self.rect.x, self.rect.y))
         self.mask = pg.mask.from_surface(self.sprite)
 
-    def draw(self, screen):
-        screen.blit(self.sprite, (self.rect.x, self.rect.y))
+    def draw(self, screen, offset_x):
+        screen.blit(self.sprite, (self.rect.x - offset_x, self.rect.y))
 
 
 class Object(pg.sprite.Sprite):
@@ -204,8 +204,8 @@ class Object(pg.sprite.Sprite):
         self.name = name
 
 
-    def draw(self, screen):
-        screen.blit(self.image, (self.rect.x, self.rect.y))
+    def draw(self, screen, offset_x):
+        screen.blit(self.image, (self.rect.x - offset_x, self.rect.y))
 
 
 
@@ -226,6 +226,10 @@ class Game:
         self.clock = pg.time.Clock()
 
         self.background, self.bg_image = get_background("Green.png")
+
+        self.offset_x = 0
+        self.scroll_area_width = 200
+
 
         self.player = Player(100, 100, 50, 50)
 
@@ -251,15 +255,23 @@ class Game:
     def update(self):
         self.player.update(objects=self.floor)
 
+        # background scrolling
+        if ((self.player.rect.right - self.offset_x >= SCREEN_WIDTH - self.scroll_area_width) and self.player.x_vel > 0) \
+            or ((self.player.rect.left - self.offset_x <= self.scroll_area_width) and self.player.x_vel < 0):
+            
+            self.offset_x += self.player.x_vel
+
+
+
 
     def draw(self):
         for tile in self.background:
             self.screen.blit(self.bg_image, tile)
 
         for obj in self.floor:
-            obj.draw(self.screen)
+            obj.draw(self.screen, self.offset_x)
 
-        self.player.draw(self.screen)
+        self.player.draw(self.screen, self.offset_x)
 
 
     def run(self):
