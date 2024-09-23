@@ -112,15 +112,16 @@ class Player(pg.sprite.Sprite):
     def handle_move(self):
 
         self.x_vel = 0
+        collide_left = self.collide(-PLAYER_VELOCITY*2)
+        collide_right = self.collide(PLAYER_VELOCITY*2)
         
         keys = pg.key.get_pressed()
-        if keys[pg.K_LEFT]:
+        if keys[pg.K_LEFT] and not collide_left:
             self.move_left(PLAYER_VELOCITY)
 
-        if keys[pg.K_RIGHT]:
+        if keys[pg.K_RIGHT] and not collide_right:
             self.move_right(PLAYER_VELOCITY)
 
-        self.handle_horizontal_collision()
         self.handle_vertical_collision()
 
 
@@ -140,7 +141,8 @@ class Player(pg.sprite.Sprite):
         if self.x_vel != 0:
             sprite_sheet = "run"
 
-        # print(sprite_sheet)
+
+        print(sprite_sheet)
 
         sprite_sheet_name = sprite_sheet + "_" + self.direction
         sprites = self.all_sprites[sprite_sheet_name]
@@ -149,14 +151,17 @@ class Player(pg.sprite.Sprite):
         self.animation_count += 1
 
 
-    def handle_horizontal_collision(self):
+    def collide(self, dx):
+        self.move(dx, 0)
+        self.update_mask()
+        collided_object = None
         for obj in self.objects:
-            if obj.rect.collidepoint(self.rect.midright):
-                self.rect.right = obj.rect.left
-            if obj.rect.collidepoint(self.rect.midleft):
-                self.rect.left = obj.rect.right
-
-  
+            if pg.sprite.collide_mask(self, obj):
+                collided_object = obj
+                break
+        self.move(-dx, 0)
+        self.update_mask()
+        return collided_object
 
     def handle_vertical_collision(self):
         collided_objects = []
