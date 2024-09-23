@@ -69,9 +69,10 @@ def get_block(size):
 
 
 class Player(pg.sprite.Sprite):
-    def __init__(self, x, y, width, height):
+    def __init__(self, game, x, y, width, height):
         super().__init__()
         self.rect = pg.Rect(x, y, width, height)
+        self.objects = game.objects
         self.x_vel = 0
         self.y_vel = 0
         self.mask = None
@@ -108,7 +109,7 @@ class Player(pg.sprite.Sprite):
             self.direction = "right"
             self.animation_count = 0
 
-    def handle_move(self, objects):
+    def handle_move(self):
 
         self.x_vel = 0
         
@@ -119,7 +120,8 @@ class Player(pg.sprite.Sprite):
         if keys[pg.K_RIGHT]:
             self.move_right(PLAYER_VELOCITY)
 
-        self.handle_vertical_collision(objects)
+        self.handle_horizontal_collision()
+        self.handle_vertical_collision()
 
 
     def handle_animation(self):
@@ -147,9 +149,18 @@ class Player(pg.sprite.Sprite):
         self.animation_count += 1
 
 
-    def handle_vertical_collision(self, objects):
+    def handle_horizontal_collision(self):
+        for obj in self.objects:
+            if obj.rect.collidepoint(self.rect.midright):
+                self.rect.right = obj.rect.left
+            if obj.rect.collidepoint(self.rect.midleft):
+                self.rect.left = obj.rect.right
+
+  
+
+    def handle_vertical_collision(self):
         collided_objects = []
-        for obj in objects:
+        for obj in self.objects:
             if pg.sprite.collide_mask(self, obj):
                 if self.y_vel > 0:
                     self.rect.bottom = obj.rect.top
@@ -174,7 +185,7 @@ class Player(pg.sprite.Sprite):
         self.y_vel *= -1
 
 
-    def update(self, objects):
+    def update(self):
 
         self.move(self.x_vel, self.y_vel)
 
@@ -183,7 +194,7 @@ class Player(pg.sprite.Sprite):
 
         self.handle_animation()
         self.update_mask()
-        self.handle_move(objects)
+        self.handle_move()
         
 
     def update_mask(self):
@@ -231,7 +242,6 @@ class Game:
         self.scroll_area_width = 200
 
 
-        self.player = Player(100, 100, 50, 50)
 
         block_size = 96
 
@@ -244,6 +254,10 @@ class Game:
                      Block(block_size * 5, SCREEN_HEIGHT - block_size * 5, block_size),]
         
         self.objects = [*floor, *platforms]
+
+
+        self.player = Player(self, 100, 100, 50, 50)
+
 
         self.run()
 
@@ -259,7 +273,7 @@ class Game:
 
 
     def update(self):
-        self.player.update(objects=self.objects)
+        self.player.update()
 
         # background scrolling
         if ((self.player.rect.right - self.offset_x >= SCREEN_WIDTH - self.scroll_area_width) and self.player.x_vel > 0) \
