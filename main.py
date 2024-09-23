@@ -138,7 +138,7 @@ class Player(pg.sprite.Sprite):
         if self.x_vel != 0:
             sprite_sheet = "run"
 
-        # print(sprite_sheet)
+        print(sprite_sheet)
 
         sprite_sheet_name = sprite_sheet + "_" + self.direction
         sprites = self.all_sprites[sprite_sheet_name]
